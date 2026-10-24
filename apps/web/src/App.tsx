@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { Layout } from '@/components/common/Layout';
 import { ProtectedRoute } from '@/components/common/ProtectedRoute';
 
 // Customer pages
@@ -23,28 +24,34 @@ export default function App() {
   const { isLoading } = useAuth();
 
   if (isLoading) {
-    return <div style={{ padding: '2rem' }}>Loading...</div>;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        Loading…
+      </div>
+    );
   }
 
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
 
-      {/* Customer routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<CatalogPage />} />
-        <Route path="/books/:bookId" element={<BookDetailPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/orders/:orderId" element={<OrderDetailPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-      </Route>
+      <Route element={<Layout />}>
+        {/* Customer routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<CatalogPage />} />
+          <Route path="/books/:bookId" element={<BookDetailPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
 
-      {/* Admin routes */}
-      <Route element={<ProtectedRoute requiredRole="tenant_admin" />}>
-        <Route path="/admin/catalog" element={<AdminCatalogPage />} />
-        <Route path="/admin/orders" element={<AdminOrdersPage />} />
+        {/* Admin routes */}
+        <Route element={<ProtectedRoute requiredRole="tenant_admin" />}>
+          <Route path="/admin/catalog" element={<AdminCatalogPage />} />
+          <Route path="/admin/orders" element={<AdminOrdersPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,59 @@
+version: "3.9"
+
+# Production overlay — use with:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?err}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:?err}"
+    restart: unless-stopped
+
+  keycloak:
+    environment:
+      KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:?err}"
+      KC_DB_PASSWORD: "${POSTGRES_PASSWORD:?err}"
+      KC_HOSTNAME: "${KEYCLOAK_HOSTNAME:?err}"
+      KC_HTTPS_CERTIFICATE_FILE: /etc/keycloak/tls.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/keycloak/tls.key
+    command: start --import-realm
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    environment:
+      DATABASE_URL: "postgres://bookstore:${POSTGRES_PASSWORD}@postgres:5432/bookstore"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379"
+      KEYCLOAK_JWKS_URL: "https://${KEYCLOAK_HOSTNAME}/realms/bookstore/protocol/openid-connect/certs"
+      KEYCLOAK_ISSUER: "https://${KEYCLOAK_HOSTNAME}/realms/bookstore"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    ports: []  # not exposed directly; fronted by web/nginx
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+      - keycloak
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

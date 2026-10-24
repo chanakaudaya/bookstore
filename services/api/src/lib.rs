@@ -10,8 +10,12 @@ pub mod orders;
 pub mod tenancy;
 pub mod users;
 
+#[cfg(test)]
+mod tests;
+
 use anyhow::Result;
 use axum::{
+    middleware,
     routing::get,
     Router,
 };
@@ -19,6 +23,7 @@ use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 
 use crate::config::AppConfig;
+use crate::users::provision::auto_provision_profile;
 
 pub async fn app(config: AppConfig) -> Result<Router> {
     let db_pool = db::create_pool(&config.database_url).await?;
@@ -34,7 +39,11 @@ pub async fn app(config: AppConfig) -> Result<Router> {
 
     let router = Router::new()
         .route("/health", get(health_handler))
-        .nest("/api/v1", api_router(state.clone()))
+        .nest(
+            "/api/v1",
+            api_router(state.clone())
+                .layer(middleware::from_fn_with_state(state.clone(), auto_provision_profile)),
+        )
         .layer(TraceLayer::new_for_http())
         .layer(CorsLayer::permissive())
         .with_state(state);

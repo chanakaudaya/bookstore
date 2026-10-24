@@ -36,6 +36,18 @@ export interface BookListParams {
   perPage?: number;
 }
 
+export interface CreateBookPayload {
+  title: string;
+  author: string;
+  isbn?: string;
+  description?: string;
+  price: number;
+  stock_qty: number;
+  cover_image_url?: string;
+  category_id?: string;
+  published_at?: string;
+}
+
 export const catalogApi = {
   listBooks: (params?: BookListParams) =>
     apiClient.get<PagedResponse<Book>>('/catalog/books', { params }).then((r) => r.data),
@@ -45,6 +57,25 @@ export const catalogApi = {
 
   listCategories: () =>
     apiClient.get<Category[]>('/catalog/categories').then((r) => r.data),
+
+  // Admin write operations
+  createBook: (payload: CreateBookPayload) =>
+    apiClient.post<Book>('/catalog/books', payload).then((r) => r.data),
+
+  updateBook: (id: string, payload: Partial<CreateBookPayload>) =>
+    apiClient.put<Book>(`/catalog/books/${id}`, payload).then((r) => r.data),
+
+  deleteBook: (id: string) =>
+    apiClient.delete(`/catalog/books/${id}`).then((r) => r.data),
+
+  createCategory: (payload: { name: string; slug: string; description?: string }) =>
+    apiClient.post<Category>('/catalog/categories', payload).then((r) => r.data),
+
+  updateCategory: (id: string, payload: { name?: string; description?: string }) =>
+    apiClient.put<Category>(`/catalog/categories/${id}`, payload).then((r) => r.data),
+
+  deleteCategory: (id: string) =>
+    apiClient.delete(`/catalog/categories/${id}`).then((r) => r.data),
 };
 
 // ---- Cart ----
