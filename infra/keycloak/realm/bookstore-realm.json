@@ -1,0 +1,102 @@
+{
+  "id": "bookstore",
+  "realm": "bookstore",
+  "displayName": "Bookstore",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "customer",
+        "description": "Regular customer — browse, cart, checkout, manage own account"
+      },
+      {
+        "name": "tenant_admin",
+        "description": "Tenant administrator — manage catalog and orders within a tenant"
+      },
+      {
+        "name": "platform_admin",
+        "description": "Platform operator — cross-tenant operations"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "bookstore-web",
+      "name": "Bookstore Web App",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "rootUrl": "http://localhost:5173",
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "protocol": "openid-connect",
+      "defaultClientScopes": ["openid", "profile", "email", "roles"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    },
+    {
+      "clientId": "bookstore-api",
+      "name": "Bookstore API (service account)",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": true,
+      "protocol": "openid-connect"
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "tenant_id",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true" },
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "defaultDefaultClientScopes": ["openid", "profile", "email", "roles", "tenant_id"],
+  "users": [
+    {
+      "username": "demo_customer",
+      "email": "customer@example.com",
+      "firstName": "Demo",
+      "lastName": "Customer",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "demo123", "temporary": false }],
+      "realmRoles": ["customer"],
+      "attributes": { "tenant_id": ["tenant-demo-001"] }
+    },
+    {
+      "username": "demo_admin",
+      "email": "admin@example.com",
+      "firstName": "Demo",
+      "lastName": "Admin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }],
+      "realmRoles": ["tenant_admin"],
+      "attributes": { "tenant_id": ["tenant-demo-001"] }
+    }
+  ]
+}
