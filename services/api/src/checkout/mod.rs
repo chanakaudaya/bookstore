@@ -61,8 +61,7 @@ async fn checkout(
     Extension(user): Extension<AuthenticatedUser>,
     Json(payload): Json<CheckoutRequest>,
 ) -> Result<Json<CheckoutResponse>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     // Idempotency: return existing order if this key was already used
     if let Some(existing_order_id) = sqlx::query_scalar!(

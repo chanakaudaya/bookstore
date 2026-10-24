@@ -69,8 +69,7 @@ async fn list_my_orders(
     Extension(user): Extension<AuthenticatedUser>,
     Query(params): Query<OrderListQuery>,
 ) -> Result<Json<PagedResponse<Order>>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id: Uuid = sqlx::query_scalar!(
         "SELECT id FROM user_profiles WHERE keycloak_user_id = $1 AND tenant_id = $2",
@@ -114,8 +113,7 @@ async fn get_my_order(
     Extension(user): Extension<AuthenticatedUser>,
     Path(order_id): Path<Uuid>,
 ) -> Result<Json<OrderWithItems>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id: Uuid = sqlx::query_scalar!(
         "SELECT id FROM user_profiles WHERE keycloak_user_id = $1 AND tenant_id = $2",
@@ -160,8 +158,7 @@ async fn admin_list_orders(
 ) -> Result<Json<PagedResponse<Order>>, AppError> {
     require_admin(&user)?;
 
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let page = params.page.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
@@ -202,8 +199,7 @@ async fn admin_update_order_status(
         return Err(AppError::BadRequest(format!("Invalid status: {}", payload.status)));
     }
 
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let order = sqlx::query_as!(
         Order,

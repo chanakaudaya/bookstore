@@ -69,8 +69,7 @@ async fn list_books(
     let page = params.page.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
     let offset = (page - 1) * per_page;
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let books = sqlx::query_as!(
         Book,
@@ -109,8 +108,7 @@ async fn get_book(
     ctx: TenantContext,
     Path(book_id): Path<Uuid>,
 ) -> Result<Json<Book>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let book = sqlx::query_as!(
         Book,
@@ -134,8 +132,7 @@ async fn list_categories(
     State(state): State<AppState>,
     ctx: TenantContext,
 ) -> Result<Json<Vec<Category>>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let categories = sqlx::query_as!(
         Category,
@@ -211,8 +208,7 @@ async fn admin_create_book(
         return Err(AppError::BadRequest("Stock quantity must be non-negative".into()));
     }
 
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let book = sqlx::query_as!(
         Book,
@@ -252,8 +248,7 @@ async fn admin_update_book(
 ) -> Result<Json<Book>, AppError> {
     require_admin(&user)?;
 
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let book = sqlx::query_as!(
         Book,
@@ -302,8 +297,7 @@ async fn admin_delete_book(
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     require_admin(&user)?;
 
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let rows = sqlx::query!(
         "DELETE FROM books WHERE id = $1 AND tenant_id = $2",
@@ -335,8 +329,7 @@ async fn admin_create_category(
 ) -> Result<(StatusCode, Json<Category>), AppError> {
     require_admin(&user)?;
 
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let category = sqlx::query_as!(
         Category,
@@ -375,8 +368,7 @@ async fn admin_update_category(
 ) -> Result<Json<Category>, AppError> {
     require_admin(&user)?;
 
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let category = sqlx::query_as!(
         Category,
@@ -409,8 +401,7 @@ async fn admin_delete_category(
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     require_admin(&user)?;
 
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let rows = sqlx::query!(
         "DELETE FROM categories WHERE id = $1 AND tenant_id = $2",

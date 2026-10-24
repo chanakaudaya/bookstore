@@ -6,7 +6,7 @@ use crate::authz::AuthenticatedUser;
 use crate::common::{AppError, AppState};
 
 /// Middleware that auto-provisions a `user_profiles` row from JWT claims on first
-/// encounter. Must run after `require_auth` so `AuthenticatedUser` is in extensions.
+/// encounter. Resolves tenant by UUID or slug. Must run after `require_auth`.
 pub async fn auto_provision_profile(
     axum::extract::State(state): axum::extract::State<AppState>,
     req: Request,
@@ -16,7 +16,20 @@ pub async fn auto_provision_profile(
         let user = user.0.clone();
 
         if let Some(tenant_id_str) = &user.tenant_id {
-            if let Ok(tenant_uuid) = Uuid::parse_str(tenant_id_str) {
+            // Resolve UUID or slug → UUID
+            let tenant_uuid: Option<Uuid> = if let Ok(u) = Uuid::parse_str(tenant_id_str) {
+                Some(u)
+            } else {
+                sqlx::query_scalar!(
+                    "SELECT id FROM tenants WHERE slug = $1 AND is_active = true",
+                    tenant_id_str
+                )
+                .fetch_optional(&state.db)
+                .await
+                .unwrap_or(None)
+            };
+
+            if let Some(tenant_uuid) = tenant_uuid {
                 let email = user.email.clone().unwrap_or_default();
                 let upsert_result = sqlx::query!(
                     r#"
@@ -36,6 +49,8 @@ pub async fn auto_provision_profile(
                 if let Err(e) = upsert_result {
                     warn!(error = %e, sub = %user.sub, "Profile auto-provision failed");
                 }
+            } else {
+                warn!(tenant = %tenant_id_str, sub = %user.sub, "Tenant not found during auto-provision");
             }
         }
     }

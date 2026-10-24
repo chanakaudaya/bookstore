@@ -106,8 +106,7 @@ async fn get_cart(
     ctx: TenantContext,
     Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<Json<CartWithItems>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id = resolve_profile_id(&state.db, &user.0.sub, tenant_uuid).await?;
     let cart = get_or_create_cart(&state.db, profile_id, tenant_uuid).await?;
@@ -135,8 +134,7 @@ async fn upsert_cart_item(
         return Err(AppError::BadRequest("Quantity must be >= 0".into()));
     }
 
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id = resolve_profile_id(&state.db, &user.0.sub, tenant_uuid).await?;
     let cart = get_or_create_cart(&state.db, profile_id, tenant_uuid).await?;
@@ -203,8 +201,7 @@ async fn clear_cart(
     ctx: TenantContext,
     Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id = resolve_profile_id(&state.db, &user.0.sub, tenant_uuid).await?;
 

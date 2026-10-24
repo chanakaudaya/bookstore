@@ -98,8 +98,7 @@ async fn get_my_profile(
     ctx: TenantContext,
     Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<Json<UserProfile>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile = sqlx::query_as!(
         UserProfile,
@@ -124,8 +123,7 @@ async fn update_my_profile(
     Extension(user): Extension<AuthenticatedUser>,
     Json(payload): Json<UpdateProfileRequest>,
 ) -> Result<Json<UserProfile>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile = sqlx::query_as!(
         UserProfile,
@@ -160,8 +158,7 @@ async fn list_addresses(
     ctx: TenantContext,
     Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<Json<Vec<ShippingAddress>>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id: Uuid = sqlx::query_scalar!(
         "SELECT id FROM user_profiles WHERE keycloak_user_id = $1 AND tenant_id = $2",
@@ -190,8 +187,7 @@ async fn create_address(
     Extension(user): Extension<AuthenticatedUser>,
     Json(payload): Json<CreateAddressRequest>,
 ) -> Result<Json<ShippingAddress>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id: Uuid = sqlx::query_scalar!(
         "SELECT id FROM user_profiles WHERE keycloak_user_id = $1 AND tenant_id = $2",
@@ -233,8 +229,7 @@ async fn delete_address(
     Extension(user): Extension<AuthenticatedUser>,
     Path(address_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id: Uuid = sqlx::query_scalar!(
         "SELECT id FROM user_profiles WHERE keycloak_user_id = $1 AND tenant_id = $2",
@@ -271,8 +266,7 @@ async fn list_payment_methods(
     ctx: TenantContext,
     Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<Json<Vec<PaymentMethod>>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id: Uuid = sqlx::query_scalar!(
         "SELECT id FROM user_profiles WHERE keycloak_user_id = $1 AND tenant_id = $2",
@@ -301,8 +295,7 @@ async fn create_payment_method(
     Extension(user): Extension<AuthenticatedUser>,
     Json(payload): Json<CreatePaymentMethodRequest>,
 ) -> Result<Json<PaymentMethod>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id: Uuid = sqlx::query_scalar!(
         "SELECT id FROM user_profiles WHERE keycloak_user_id = $1 AND tenant_id = $2",
@@ -341,8 +334,7 @@ async fn delete_payment_method(
     Extension(user): Extension<AuthenticatedUser>,
     Path(method_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
-    let tenant_uuid = Uuid::parse_str(&ctx.tenant_id)
-        .map_err(|_| AppError::BadRequest("Invalid tenant_id".into()))?;
+    let tenant_uuid = ctx.tenant_uuid;
 
     let profile_id: Uuid = sqlx::query_scalar!(
         "SELECT id FROM user_profiles WHERE keycloak_user_id = $1 AND tenant_id = $2",
