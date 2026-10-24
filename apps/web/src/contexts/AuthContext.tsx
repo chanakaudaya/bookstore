@@ -22,9 +22,7 @@ const keycloakInstance = new Keycloak({
   clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? 'bookstore-web',
 });
 
-/** How many seconds before expiry to trigger a proactive refresh. */
 const REFRESH_BEFORE_EXPIRY_SEC = 60;
-/** Interval (ms) at which we check whether the token needs refreshing. */
 const REFRESH_CHECK_INTERVAL_MS = 30_000;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -32,6 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | undefined>(undefined);
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Guard against React StrictMode double-invocation calling init() twice
+  const initStarted = useRef(false);
 
   const applyToken = (kc: Keycloak) => {
     const t = kc.token;
@@ -56,19 +56,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshTimerRef.current = setInterval(async () => {
       try {
         const refreshed = await kc.updateToken(REFRESH_BEFORE_EXPIRY_SEC);
-        if (refreshed) {
-          applyToken(kc);
-        }
+        if (refreshed) applyToken(kc);
       } catch {
-        // Refresh failed — session likely expired; redirect to login
         kc.logout({ redirectUri: window.location.origin });
       }
     }, REFRESH_CHECK_INTERVAL_MS);
   };
 
   useEffect(() => {
+    // Prevent double init (React StrictMode runs effects twice in development)
+    if (initStarted.current) return;
+    initStarted.current = true;
+
     keycloakInstance
-      .init({ onLoad: 'check-sso', pkceMethod: 'S256' })
+      .init({
+        onLoad: 'check-sso',
+        silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
+        pkceMethod: 'S256',
+        checkLoginIframe: false, // avoid iframe-based check; use the redirect URI above
+      })
       .then((authenticated) => {
         if (authenticated) {
           applyToken(keycloakInstance);
@@ -76,7 +82,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           startRefreshTimer(keycloakInstance);
         }
       })
-      .finally(() => setIsLoading(false));
+      .catch((err) => {
+        console.error('Keycloak init error:', err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
 
     return () => {
       if (refreshTimerRef.current) clearInterval(refreshTimerRef.current);

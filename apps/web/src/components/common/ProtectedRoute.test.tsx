@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/common/ProtectedRoute';
 
@@ -61,7 +61,7 @@ describe('ProtectedRoute', () => {
     expect(screen.getByText('Protected content')).toBeInTheDocument();
   });
 
-  it('calls login when not authenticated', () => {
+  it('calls login when not authenticated', async () => {
     const loginMock = vi.fn();
     mockUseAuth.mockReturnValue({
       isAuthenticated: false,
@@ -84,7 +84,10 @@ describe('ProtectedRoute', () => {
       </MemoryRouter>
     );
 
-    expect(loginMock).toHaveBeenCalled();
+    // login is now called in a useEffect, so we wait for it
+    await waitFor(() => {
+      expect(loginMock).toHaveBeenCalled();
+    });
   });
 });
 
