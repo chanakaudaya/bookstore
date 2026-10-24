@@ -30,3 +30,8 @@ infra/keycloak/data/
 # Logs
 logs/
 *.log
+
+# Runtime logs
+*.log
+api.err
+web.err

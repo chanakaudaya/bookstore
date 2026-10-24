@@ -12,7 +12,7 @@ vi.mock('@/services/api', () => ({
 }));
 
 import { catalogApi } from '@/services/api';
-const mockCatalog = catalogApi as {
+const mockCatalog = catalogApi as unknown as {
   listBooks: ReturnType<typeof vi.fn>;
   listCategories: ReturnType<typeof vi.fn>;
 };
@@ -42,7 +42,7 @@ function renderPage() {
 }
 
 describe('CatalogPage', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => { vi.clearAllMocks(); });
 
   it('renders book titles', async () => {
     renderPage();

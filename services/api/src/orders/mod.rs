@@ -79,7 +79,6 @@ async fn list_my_orders(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)?;
 
     let page = params.page.unwrap_or(1).max(1);
@@ -125,7 +124,6 @@ async fn get_my_order(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)?;
 
     let order = sqlx::query_as!(

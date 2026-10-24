@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { catalogApi } from '@/services/api';
@@ -17,7 +17,7 @@ export default function CatalogPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['books', params],
     queryFn: () => catalogApi.listBooks(params),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   const handleSearch = () => {

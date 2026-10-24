@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/common/ProtectedRoute';
 
 // Mock the AuthContext
@@ -49,7 +49,7 @@ function renderWithRouter(
 }
 
 describe('ProtectedRoute', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => { vi.clearAllMocks(); });
 
   it('shows loading state while auth is resolving', () => {
     renderWithRouter(false, true);
@@ -89,7 +89,7 @@ describe('ProtectedRoute', () => {
 });
 
 describe('ProtectedRoute with role', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => { vi.clearAllMocks(); });
 
   it('renders content when user has required role', () => {
     mockUseAuth.mockReturnValue({

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, keepPreviousData, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ordersApi } from '@/services/api';
 
@@ -11,7 +11,7 @@ export default function AdminOrdersPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-orders', page],
     queryFn: () => ordersApi.adminListOrders({ page, perPage: 20 }),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   const updateStatus = useMutation({

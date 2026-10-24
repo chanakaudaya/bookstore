@@ -1,7 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import { usersApi, checkoutApi } from '@/services/api';
 
 export default function CheckoutPage() {
@@ -23,7 +22,7 @@ export default function CheckoutPage() {
   const doCheckout = useMutation({
     mutationFn: () =>
       checkoutApi.checkout({
-        idempotencyKey: uuidv4(),
+        idempotencyKey: crypto.randomUUID(),
         shippingAddressId: selectedAddress,
         paymentMethodId: selectedPayment,
       }),

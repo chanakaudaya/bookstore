@@ -1,5 +1,6 @@
 pub mod provision;
 
+use axum::{
     extract::{Path, State},
     middleware,
     routing::{delete, get, post, put},
@@ -169,7 +170,6 @@ async fn list_addresses(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)?;
 
     let addresses = sqlx::query_as!(
@@ -200,7 +200,6 @@ async fn create_address(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)?;
 
     let address = sqlx::query_as!(
@@ -244,7 +243,6 @@ async fn delete_address(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)?;
 
     let rows = sqlx::query!(
@@ -283,7 +281,6 @@ async fn list_payment_methods(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)?;
 
     let methods = sqlx::query_as!(
@@ -314,7 +311,6 @@ async fn create_payment_method(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)?;
 
     let method = sqlx::query_as!(
@@ -355,7 +351,6 @@ async fn delete_payment_method(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)?;
 
     let rows = sqlx::query!(

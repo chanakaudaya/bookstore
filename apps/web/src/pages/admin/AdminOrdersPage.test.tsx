@@ -12,7 +12,7 @@ vi.mock('@/services/api', () => ({
 }));
 
 import { ordersApi } from '@/services/api';
-const mockOrdersApi = ordersApi as {
+const mockOrdersApi = ordersApi as unknown as {
   adminListOrders: ReturnType<typeof vi.fn>;
   adminUpdateStatus: ReturnType<typeof vi.fn>;
 };
@@ -50,7 +50,7 @@ function renderPage() {
 }
 
 describe('AdminOrdersPage', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => { vi.clearAllMocks(); });
 
   it('renders order rows', async () => {
     renderPage();

@@ -18,6 +18,10 @@ export default defineConfig({
       },
     },
   },
+  // uuid is not directly imported; exclude it from pre-bundling to suppress false-positive warning
+  optimizeDeps: {
+    exclude: ['uuid'],
+  },
   test: {
     globals: true,
     environment: 'jsdom',

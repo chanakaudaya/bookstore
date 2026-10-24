@@ -72,7 +72,6 @@ async fn checkout(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     {
         let order = sqlx::query!(
             "SELECT id, status, payment_status, total FROM orders WHERE id = $1",
@@ -97,7 +96,6 @@ async fn checkout(
     )
     .fetch_optional(&state.db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)?;
 
     // Validate shipping address belongs to user

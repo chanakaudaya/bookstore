@@ -72,7 +72,7 @@ async fn check_db(state: &AppState) -> ComponentHealth {
 async fn check_cache(state: &AppState) -> ComponentHealth {
     let start = Instant::now();
     let mut conn = state.redis.clone();
-    match redis::cmd("PING").query_async::<String>(&mut conn).await {
+    match redis::cmd("PING").query_async::<_, String>(&mut conn).await {
         Ok(_) => ComponentHealth {
             status: "ok",
             error: None,

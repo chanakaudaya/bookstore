@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import CartPage from '@/pages/customer/CartPage';
@@ -33,7 +33,7 @@ function renderCartPage(cartData: object) {
 }
 
 describe('CartPage', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => { vi.clearAllMocks(); });
 
   it('shows empty cart message when cart has no items', async () => {
     renderCartPage({ id: 'c1', userId: 'u1', tenantId: 't1', items: [], subtotal: 0, createdAt: '', updatedAt: '' });

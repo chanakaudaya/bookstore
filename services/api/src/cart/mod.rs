@@ -1,7 +1,7 @@
 use axum::{
-    extract::{Path, State},
+    extract::State,
     middleware,
-    routing::{delete, get, post, put},
+    routing::{delete, get, post},
     Extension, Json, Router,
 };
 use chrono::{DateTime, Utc};
@@ -67,7 +67,6 @@ async fn resolve_profile_id(
     )
     .fetch_optional(db)
     .await?
-    .flatten()
     .ok_or(AppError::NotFound)
 }
 

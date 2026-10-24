@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, keepPreviousData, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { catalogApi } from '@/services/api';
 import type { Book } from '@/types';
@@ -53,7 +53,7 @@ export default function AdminCatalogPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-books', page],
     queryFn: () => catalogApi.listBooks({ page, perPage: 20 }),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   const createBook = useMutation({

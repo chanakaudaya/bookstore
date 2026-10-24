@@ -1,6 +1,6 @@
 use axum::{
     extract::{Request, State},
-    http::{header::AUTHORIZATION, StatusCode},
+    http::header::AUTHORIZATION,
     middleware::Next,
     response::Response,
 };
