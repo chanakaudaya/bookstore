@@ -1,18 +1,27 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const apiClient = axios.create({
   baseURL: '/api/v1',
   headers: { 'Content-Type': 'application/json' },
 });
 
-/** Attach the Bearer token before every request. */
+/** Set or clear the Bearer token on the shared client. Called by AuthContext on auth state change. */
 export function setAuthToken(token: string | undefined) {
   if (token) {
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    apiClient.defaults.headers.common['Authorization'] = 'Bearer ' + token;
   } else {
     delete apiClient.defaults.headers.common['Authorization'];
   }
 }
+
+/** Response interceptor -- surfaces API error messages from the standard error envelope. */
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<{ error: string; message: string }>) => {
+    const message = error.response?.data?.message ?? error.message;
+    return Promise.reject(new Error(message));
+  }
+);
 
 export default apiClient;
 

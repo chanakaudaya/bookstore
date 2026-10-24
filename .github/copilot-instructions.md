@@ -98,18 +98,23 @@ docker compose -f infra/docker-compose.yml -f infra/docker-compose.prod.yml up -
 - `payment_methods` stores only safe metadata (`last_four`, `token_reference`) — never raw card numbers.
 - `order_items` snapshots book title and price at time of purchase (denormalized by design).
 
+## Observability
+
+- `GET /health` — structured liveness check with DB and Redis latency; returns `{"status":"ok"|"degraded", "checks":{...}}`.
+- `GET /metrics` — Prometheus text format with `bookstore_db_pool_size`, `bookstore_db_pool_idle`, and `bookstore_info` labels.
+- Structured JSON logs via `tracing-subscriber` with `env-filter`; set `RUST_LOG=api=debug,tower_http=debug`.
+
 ## Production deployment
 
-Build and run with Docker:
-
 ```bash
-# From repo root
+# Build and start (from repo root)
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.prod.yml up -d
+
+# Run migrations after first deploy or after an upgrade
+docker compose exec api ./migrate
 ```
 
-The production compose adds: API container (multi-stage Rust build), Web container (Vite build + nginx with SPA fallback and API proxy), Keycloak in production mode (TLS), and password env vars enforced via `${VAR:?err}`.
-
-Create a `.env` file at repo root with: `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `KEYCLOAK_ADMIN_PASSWORD`, `KEYCLOAK_HOSTNAME`.
+Copy `.env.prod.example` to `.env` and fill in `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `KEYCLOAK_ADMIN_PASSWORD`, `KEYCLOAK_HOSTNAME`. See `docs/runbook.md` for the full operational playbook.
 
 ## Keycloak integration
 

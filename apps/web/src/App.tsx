@@ -15,6 +15,7 @@ import ProfilePage from '@/pages/customer/ProfilePage';
 
 // Admin pages
 import AdminCatalogPage from '@/pages/admin/AdminCatalogPage';
+import AdminCategoriesPage from '@/pages/admin/AdminCategoriesPage';
 import AdminOrdersPage from '@/pages/admin/AdminOrdersPage';
 
 // Shared
@@ -50,6 +51,7 @@ export default function App() {
         {/* Admin routes */}
         <Route element={<ProtectedRoute requiredRole="tenant_admin" />}>
           <Route path="/admin/catalog" element={<AdminCatalogPage />} />
+          <Route path="/admin/categories" element={<AdminCategoriesPage />} />
           <Route path="/admin/orders" element={<AdminOrdersPage />} />
         </Route>
       </Route>

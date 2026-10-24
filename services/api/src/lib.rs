@@ -6,6 +6,7 @@ pub mod checkout;
 pub mod common;
 pub mod config;
 pub mod db;
+pub mod observability;
 pub mod orders;
 pub mod tenancy;
 pub mod users;
@@ -16,7 +17,6 @@ mod tests;
 use anyhow::Result;
 use axum::{
     middleware,
-    routing::get,
     Router,
 };
 use tower_http::cors::CorsLayer;
@@ -38,7 +38,7 @@ pub async fn app(config: AppConfig) -> Result<Router> {
     };
 
     let router = Router::new()
-        .route("/health", get(health_handler))
+        .merge(observability::routes(state.clone()))
         .nest(
             "/api/v1",
             api_router(state.clone())

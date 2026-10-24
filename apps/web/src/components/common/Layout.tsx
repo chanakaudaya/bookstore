@@ -45,6 +45,7 @@ export function Layout() {
             <>
               <span style={{ color: '#555' }}>|</span>
               <Link to="/admin/catalog" style={linkStyle}>Admin: Catalog</Link>
+              <Link to="/admin/categories" style={linkStyle}>Admin: Categories</Link>
               <Link to="/admin/orders" style={linkStyle}>Admin: Orders</Link>
             </>
           )}
